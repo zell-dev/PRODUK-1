@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Katalog dan Hitung Ongkir</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .product-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .product-item {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            padding: 20px;
+            width: 200px;
+            text-align: center;
+        }
+        .product-item img {
+            width: 100%;
+            height: auto;
+        }
+        .form-section {
+            margin-top: 40px;
+            background-color: #fff;
+            padding: 20px;
+            border: 1px solid #ddd;
+        }
+        .form-section input, .form-section button {
+            display: block;
+            margin-top: 10px;
+            padding: 10px;
+            width: 100%;
+        }
+        #ongkir-result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #e0ffe0;
+            border: 1px solid #00cc00;
+            color: #006600;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Produk Kami</h1>
+
+    <!-- Katalog Produk -->
+    <div class="product-grid">
+        <div class="product-item">
+            <img src="https://via.placeholder.com/200" alt="Produk 1">
+            <h3>Produk 1</h3>
+            <p>Harga: Rp 100.000</p>
+        </div>
+        <div class="product-item">
+            <img src="https://via.placeholder.com/200" alt="Produk 2">
+            <h3>Produk 2</h3>
+            <p>Harga: Rp 150.000</p>
+        </div>
+        <div class="product-item">
+            <img src="https://via.placeholder.com/200" alt="Produk 3">
+            <h3>Produk 3</h3>
+            <p>Harga: Rp 200.000</p>
+        </div>
+    </div>
+
+    <!-- Form Hitung Ongkos Kirim -->
+    <div class="form-section">
+        <h2>Hitung Ongkir</h2>
+        <form id="shipping-form">
+            <label for="city">Kota Tujuan:</label>
+            <input type="text" id="city" name="city" placeholder="Masukkan ID Kota Tujuan" required>
+
+            <label for="weight">Berat (gram):</label>
+            <input type="number" id="weight" name="weight" placeholder="Masukkan Berat Barang (gram)" required>
+
+            <button type="submit">Hitung Ongkir</button>
+        </form>
+
+        <div id="ongkir-result"></div>
+    </div>
+
+    <script>
+        document.getElementById('shipping-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const city = document.getElementById('city').value;
+            const weight = document.getElementById('weight').value;
+
+            fetch('https://api.rajaongkir.com/starter/cost', {
+                method: 'POST',
+                headers: {
+                    'key': '3f43cc7e3b31d5e38d15c0fc29a57f9f',  // Ganti dengan API Key dari RajaOngkir
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    'origin': '501',  // ID kota asal (misal: Yogyakarta)
+                    'destination': city,  // ID kota tujuan
+                    'weight': weight,  // Berat barang dalam gram
+                    'courier': 'jne',  // Ekspedisi yang dipilih, misal JNE
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                const result = data.rajaongkir.results[0].costs[0].cost[0].value;
+                document.getElementById('ongkir-result').textContent = `Ongkir: Rp ${result}`;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('ongkir-result').textContent = 'Terjadi kesalahan saat menghitung ongkir';
+            });
+        });
+    </script>
+
+</body>
+</html>
